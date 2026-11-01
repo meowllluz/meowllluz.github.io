@@ -1,0 +1,1582 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meow Linux — OS для людей с IQ выше, чем у стула</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Expanded:wght@600;700;800&family=JetBrains+Mono:wght@300;400;500;600&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-night: #1a1b26;
+      --bg-storm: #24283b;
+      --bg-dark: #16161e;
+      --fg: #a9b1d6;
+      --fg-bright: #c0caf5;
+      --comment: #565f89;
+      --red: #f7768e;
+      --orange: #ff9e64;
+      --yellow: #e0af68;
+      --green: #9ece6a;
+      --cyan: #7dcfff;
+      --blue: #7aa2f7;
+      --purple: #bb9af7;
+
+      --glass-thick: rgba(36, 40, 59, 0.72);
+      --glass-medium: rgba(26, 27, 38, 0.65);
+      --glass-border: rgba(122, 162, 247, 0.14);
+      --glass-highlight: rgba(192, 202, 245, 0.08);
+
+      --radius: 18px;
+      --radius-sm: 12px;
+      --blur: 22px;
+      --saturate: 180%;
+
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-soft: cubic-bezier(0.4, 0, 0.2, 1);
+      --ease-hover: cubic-bezier(0.22, 0.61, 0.36, 1);
+
+      --dur-hover: 0.8s;
+      --maxw: 2000px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 68px;
+      overflow-x: clip;
+    }
+
+    body {
+      font-family: 'Space Grotesk', sans-serif;
+      background-color: var(--bg-night);
+      color: var(--fg);
+      line-height: 1.6;
+      overflow-x: clip;
+      min-height: 100vh;
+      position: relative;
+      font-size: 16px;
+    }
+
+    /* ---------- Фон ---------- */
+    .bg-layer {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .bg-layer--glow {
+      background:
+        radial-gradient(ellipse 60% 45% at 18% 12%, rgba(122, 162, 247, 0.13), transparent 65%),
+        radial-gradient(ellipse 55% 50% at 82% 78%, rgba(187, 154, 247, 0.10), transparent 65%),
+        radial-gradient(ellipse 40% 35% at 50% 45%, rgba(247, 118, 142, 0.06), transparent 70%);
+      transition: background 0.6s ease;
+    }
+
+    .bg-layer--noise {
+      opacity: 0.035;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+
+    .bg-layer--grid {
+      opacity: 0.04;
+      background-image:
+        linear-gradient(rgba(122, 162, 247, 0.5) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(122, 162, 247, 0.5) 1px, transparent 1px);
+      background-size: 64px 64px;
+      mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, black 20%, transparent 75%);
+    }
+
+    /* ---------- Фоновая надпись meow ---------- */
+    .bg-layer--meow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      z-index: 0;
+    }
+
+    .meow-word {
+      position: relative;
+      display: flex;
+      align-items: baseline;
+      font-family: 'Archivo Expanded', 'Space Grotesk', sans-serif;
+      font-weight: 800;
+      font-size: clamp(8rem, 27vw, 34rem);
+      line-height: 0.78;
+      letter-spacing: -0.045em;
+      color: #05060a;
+      opacity: 0.92;
+      user-select: none;
+      pointer-events: none;
+      will-change: transform;
+    }
+
+    .meow-letter {
+      display: inline-block;
+      will-change: transform;
+      text-shadow: 0 0 90px rgba(0, 0, 0, 0.95);
+    }
+
+    /* ---------- Стекло ---------- */
+    .glass {
+      background: var(--glass-thick);
+      backdrop-filter: blur(var(--blur)) saturate(var(--saturate));
+      -webkit-backdrop-filter: blur(var(--blur)) saturate(var(--saturate));
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius);
+      box-shadow:
+        0 20px 50px -20px rgba(0, 0, 0, 0.7),
+        inset 0 1px 0 var(--glass-highlight);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .glass::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: linear-gradient(135deg, rgba(192, 202, 245, 0.05) 0%, transparent 45%);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* ---------- Навигация ---------- */
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.42rem 1.8rem;
+      margin: 0 1.1rem;
+      border-radius: 0 0 var(--radius) var(--radius);
+      background: rgba(22, 22, 30, 0.78);
+      backdrop-filter: blur(18px) saturate(160%);
+      -webkit-backdrop-filter: blur(18px) saturate(160%);
+      border-bottom: 1px solid var(--glass-border);
+      transition: background 0.6s var(--ease-hover);
+    }
+
+    .nav__brand {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 500;
+      letter-spacing: -0.03em;
+      color: var(--fg-bright);
+      font-size: 1.02rem;
+      text-decoration: none;
+      transition: color 0.5s var(--ease-hover);
+    }
+
+    .nav__brand span { color: var(--red); transition: text-shadow 0.5s var(--ease-hover); }
+    .nav__brand:hover span { text-shadow: 0 0 18px rgba(247, 118, 142, 0.7); }
+
+    .nav__links {
+      display: flex;
+      gap: 1.7rem;
+      align-items: center;
+    }
+
+    .nav__links a {
+      color: var(--comment);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-family: 'JetBrains Mono', monospace;
+      transition: color 0.5s var(--ease-hover);
+      position: relative;
+    }
+
+    .nav__links a::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: -4px;
+      width: 0;
+      height: 1px;
+      background: var(--blue);
+      transition: width 0.6s var(--ease-hover);
+    }
+
+    .nav__links a:hover { color: var(--blue); }
+    .nav__links a:hover::after { width: 100%; }
+
+    .nav__cta {
+      color: var(--bg-night) !important;
+      background: var(--red);
+      padding: 0.4rem 1.15rem;
+      border-radius: 9px;
+      font-weight: 600;
+      transition: box-shadow 0.8s var(--ease-hover), transform 0.7s var(--ease-hover);
+      box-shadow: 0 4px 14px -6px rgba(247, 118, 142, 0.5);
+    }
+
+    .nav__cta::after { display: none; }
+
+    .nav__cta:hover {
+      transform: translateY(-1px);
+      box-shadow:
+        0 8px 24px -6px rgba(247, 118, 142, 0.75),
+        0 0 22px rgba(247, 118, 142, 0.5);
+      color: var(--bg-night) !important;
+    }
+
+    /* ---------- Hero ---------- */
+    .hero {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2.5rem;
+      align-items: center;
+      max-width: var(--maxw);
+      margin: 0 auto;
+      padding: 2.4rem 2.2rem 3rem;
+    }
+
+    .hero__content {
+      display: flex;
+      flex-direction: column;
+      gap: 1.6rem;
+    }
+
+    .hero__ascii-mobile {
+      display: none;
+      font-family: 'JetBrains Mono', monospace;
+      white-space: pre;
+      color: var(--red);
+      font-size: 0.62rem;
+      line-height: 1.15;
+      opacity: 0.9;
+      margin-bottom: 0.5rem;
+      text-shadow: 0 0 20px rgba(247, 118, 142, 0.35);
+    }
+
+    .hero__title {
+      font-size: clamp(3rem, 7vw, 6rem);
+      font-weight: 700;
+      letter-spacing: -0.045em;
+      line-height: 0.95;
+      color: var(--fg-bright);
+    }
+
+    .hero__title em {
+      font-style: normal;
+      color: var(--red);
+      text-shadow: 0 0 40px rgba(247, 118, 142, 0.3);
+    }
+
+    .hero__subtitle {
+      font-size: clamp(1.05rem, 1.5vw, 1.3rem);
+      font-weight: 300;
+      color: var(--comment);
+      max-width: 50ch;
+      font-family: 'JetBrains Mono', monospace;
+      line-height: 1.65;
+    }
+
+    .hero__subtitle strong {
+      color: var(--fg);
+      font-weight: 400;
+    }
+
+    .hero__actions {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1.4rem;
+      flex-wrap: wrap;
+    }
+
+    /* ---------- Кнопки ---------- */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55rem;
+      padding: 0.95rem 1.9rem;
+      border-radius: var(--radius-sm);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.95rem;
+      font-weight: 500;
+      text-decoration: none;
+      cursor: pointer;
+      border: none;
+      position: relative;
+      transition: transform 0.7s var(--ease-hover), box-shadow 0.8s var(--ease-hover);
+    }
+
+    .btn--primary {
+      background: var(--red);
+      color: var(--bg-night);
+      box-shadow: 0 8px 30px -10px rgba(247, 118, 142, 0.55);
+    }
+
+    .btn--primary:hover {
+      transform: translateY(-2px);
+      box-shadow:
+        0 12px 40px -8px rgba(247, 118, 142, 0.85),
+        0 0 30px rgba(247, 118, 142, 0.55),
+        0 0 70px rgba(247, 118, 142, 0.28);
+      color: var(--bg-night);
+    }
+
+    .btn--ghost {
+      background: transparent;
+      color: var(--fg);
+      border: 1px solid var(--glass-border);
+      transition: border-color 0.7s var(--ease-hover), color 0.7s var(--ease-hover), transform 0.7s var(--ease-hover), box-shadow 0.8s var(--ease-hover);
+    }
+
+    .btn--ghost:hover {
+      border-color: var(--blue);
+      color: var(--blue);
+      transform: translateY(-2px);
+      box-shadow: 0 0 24px -4px rgba(122, 162, 247, 0.4);
+    }
+
+    .hero__terminal {
+      perspective: 1200px;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .hero__ascii-desktop {
+      font-family: 'JetBrains Mono', monospace;
+      white-space: pre;
+      color: var(--red);
+      font-size: clamp(0.55rem, 1.15vw, 1.32rem);
+      line-height: 1.12;
+      opacity: 0.95;
+      text-shadow: 0 0 28px rgba(247, 118, 142, 0.3);
+      transition: transform 0.15s ease-out;
+      will-change: transform;
+      animation: asciiFloat 8s ease-in-out infinite;
+    }
+
+    @keyframes asciiFloat {
+      0%, 100% { filter: drop-shadow(0 0 0 rgba(247, 118, 142, 0)); }
+      50% { filter: drop-shadow(0 0 40px rgba(247, 118, 142, 0.15)); }
+    }
+
+    /* ---------- Секции ---------- */
+    .section {
+      position: relative;
+      z-index: 1;
+      max-width: var(--maxw);
+      margin: 0 auto;
+      padding: 4.6rem 2.2rem;
+      scroll-margin-top: 68px;
+    }
+
+    .section__head {
+      margin-bottom: 3rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+    }
+
+    .section__label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--blue);
+      animation: labelPulse 5s ease-in-out infinite;
+    }
+
+    @keyframes labelPulse {
+      0%, 100% { opacity: 0.85; }
+      50% { opacity: 1; }
+    }
+
+    .section__title {
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      font-weight: 600;
+      letter-spacing: -0.035em;
+      color: var(--fg-bright);
+      line-height: 1.1;
+    }
+
+    .section__desc {
+      color: var(--comment);
+      max-width: 64ch;
+      font-size: 1.05rem;
+    }
+
+    /* ---------- Принципы ---------- */
+    .principles-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+
+    .principle-card {
+      padding: 2.2rem 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      transform-style: preserve-3d;
+      will-change: transform;
+      transition:
+        transform 0.9s var(--ease-hover),
+        border-color var(--dur-hover) var(--ease-hover),
+        box-shadow var(--dur-hover) var(--ease-hover);
+    }
+
+    .principle-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(122, 162, 247, 0.3);
+      box-shadow:
+        0 28px 60px -24px rgba(0, 0, 0, 0.8),
+        0 0 40px -10px rgba(122, 162, 247, 0.2),
+        inset 0 1px 0 var(--glass-highlight);
+    }
+
+    .principle-card__icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: rgba(122, 162, 247, 0.10);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--blue);
+      transition: transform 0.9s var(--ease-hover), background 0.7s var(--ease-hover);
+    }
+
+    .principle-card:hover .principle-card__icon {
+      transform: scale(1.05) rotate(-2deg);
+    }
+
+    .principle-card:nth-child(2) .principle-card__icon {
+      background: rgba(187, 154, 247, 0.10);
+      color: var(--purple);
+    }
+
+    .principle-card:nth-child(3) .principle-card__icon {
+      background: rgba(247, 118, 142, 0.10);
+      color: var(--red);
+    }
+
+    .principle-card h3 {
+      font-size: 1.22rem;
+      font-weight: 600;
+      color: var(--fg-bright);
+      letter-spacing: -0.02em;
+    }
+
+    .principle-card p {
+      font-size: 0.94rem;
+      color: var(--comment);
+      line-height: 1.65;
+    }
+
+    .principle-card code {
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--blue);
+      font-size: 0.85em;
+    }
+
+    /* ---------- Опасности ---------- */
+    .hazard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.2rem;
+    }
+
+    .hazard-card {
+      padding: 1.9rem 1.7rem;
+      display: flex;
+      gap: 1.1rem;
+      align-items: flex-start;
+      transform-style: preserve-3d;
+      will-change: transform;
+      transition:
+        border-color var(--dur-hover) var(--ease-hover),
+        transform 0.9s var(--ease-hover),
+        box-shadow var(--dur-hover) var(--ease-hover);
+    }
+
+    .hazard-card:hover {
+      border-color: rgba(247, 118, 142, 0.3);
+      transform: translateY(-2px);
+      box-shadow:
+        0 24px 50px -22px rgba(0, 0, 0, 0.8),
+        0 0 40px -12px rgba(247, 118, 142, 0.25),
+        inset 0 1px 0 var(--glass-highlight);
+    }
+
+    .hazard-card__num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.7rem;
+      font-weight: 600;
+      color: var(--red);
+      opacity: 0.7;
+      line-height: 1;
+      min-width: 2.2rem;
+    }
+
+    .hazard-card h4 {
+      font-size: 1.02rem;
+      color: var(--fg-bright);
+      font-weight: 600;
+      margin-bottom: 0.35rem;
+    }
+
+    .hazard-card p {
+      font-size: 0.9rem;
+      color: var(--comment);
+    }
+
+    /* ---------- Карусель ---------- */
+    .carousel-wrap {
+      position: relative;
+      border-radius: var(--radius);
+      overflow: hidden;
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+
+    .carousel-track {
+      display: flex;
+      transition: transform 0.85s var(--ease-hover);
+      will-change: transform;
+    }
+
+    .carousel-slide {
+      min-width: 100%;
+      aspect-ratio: 16 / 9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--comment);
+      font-size: 0.95rem;
+      position: relative;
+      background: linear-gradient(135deg, #24283b, #1a1b26);
+    }
+
+    .carousel-slide:nth-child(2) { background: linear-gradient(135deg, #1a1b26, #24283b); }
+    .carousel-slide:nth-child(3) { background: linear-gradient(135deg, #24283b, #16161e); }
+    .carousel-slide:nth-child(4) { background: linear-gradient(135deg, #16161e, #24283b); }
+
+    .carousel-slide::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, transparent 60%, rgba(26, 27, 38, 0.8));
+      pointer-events: none;
+    }
+
+    .carousel-nav {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: rgba(26, 27, 38, 0.72);
+      backdrop-filter: blur(14px) saturate(160%);
+      -webkit-backdrop-filter: blur(14px) saturate(160%);
+      border: 1px solid var(--glass-border);
+      color: var(--fg);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      transition:
+        background 0.7s var(--ease-hover),
+        color 0.7s var(--ease-hover),
+        border-color 0.7s var(--ease-hover),
+        box-shadow 0.8s var(--ease-hover),
+        transform 0.7s var(--ease-hover);
+    }
+
+    .carousel-nav:hover {
+      color: var(--red);
+      border-color: var(--red);
+      background: rgba(36, 40, 59, 0.9);
+      box-shadow: 0 0 30px rgba(247, 118, 142, 0.4);
+      transform: translateY(-50%) scale(1.06);
+    }
+
+    .carousel-nav:active {
+      transform: translateY(-50%) scale(0.96);
+    }
+
+    .carousel-nav--prev { left: 1.2rem; }
+    .carousel-nav--next { right: 1.2rem; }
+
+    .carousel-dots {
+      display: flex;
+      justify-content: center;
+      gap: 0.55rem;
+      padding: 1.4rem 0 0;
+    }
+
+    .carousel-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      border: none;
+      background: var(--comment);
+      opacity: 0.35;
+      cursor: pointer;
+      transition: opacity 0.6s var(--ease-hover), background 0.6s var(--ease-hover), width 0.6s var(--ease-hover);
+    }
+
+    .carousel-dot:hover { opacity: 0.7; }
+
+    .carousel-dot.active {
+      background: var(--red);
+      opacity: 1;
+      width: 26px;
+      border-radius: 5px;
+      box-shadow: 0 0 12px rgba(247, 118, 142, 0.6);
+    }
+
+    /* ---------- Терминалы ---------- */
+    .terminals-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      position: relative;
+      isolation: isolate;
+    }
+
+    .terminal-glow {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 420px;
+      height: 420px;
+      border-radius: 50%;
+      background: radial-gradient(
+        circle,
+        rgba(122, 162, 247, 0.55) 0%,
+        rgba(187, 154, 247, 0.28) 30%,
+        rgba(247, 118, 142, 0.12) 55%,
+        transparent 75%
+      );
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0;
+      filter: blur(12px);
+      will-change: transform, opacity;
+      transition: opacity 0.5s var(--ease-soft);
+    }
+
+    .terminal-card {
+      position: relative;
+      z-index: 1;
+      padding: 0;
+      overflow: hidden;
+      transform-style: preserve-3d;
+      will-change: transform;
+      transition: border-color var(--dur-hover) var(--ease-hover), box-shadow var(--dur-hover) var(--ease-hover);
+    }
+
+    .terminal-card:hover {
+      border-color: rgba(122, 162, 247, 0.28);
+      box-shadow:
+        0 24px 60px -22px rgba(0, 0, 0, 0.8),
+        0 0 50px -16px rgba(122, 162, 247, 0.28),
+        inset 0 1px 0 var(--glass-highlight);
+    }
+
+    .terminal-bar {
+      display: flex;
+      align-items: center;
+      padding: 0.85rem 1.1rem;
+      background: rgba(22, 22, 30, 0.65);
+      border-bottom: 1px solid var(--glass-border);
+      position: relative;
+      z-index: 2;
+    }
+
+    .terminal-dots {
+      display: flex;
+      gap: 7px;
+      flex-shrink: 0;
+    }
+
+    .terminal-dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      transition: filter 0.6s var(--ease-hover);
+    }
+
+    .terminal-dot--red    { background: #ff5f57; }
+    .terminal-dot--yellow { background: #febc2e; }
+    .terminal-dot--green  { background: #28c840; }
+
+    .terminal-card:hover .terminal-dot--red    { filter: drop-shadow(0 0 6px rgba(255, 95, 87, 0.7)); }
+    .terminal-card:hover .terminal-dot--yellow { filter: drop-shadow(0 0 6px rgba(254, 188, 46, 0.7)); }
+    .terminal-card:hover .terminal-dot--green  { filter: drop-shadow(0 0 6px rgba(40, 200, 64, 0.7)); }
+
+    .terminal-title {
+      margin-left: auto;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      color: var(--comment);
+      letter-spacing: 0.02em;
+    }
+
+    .terminal-body {
+      padding: 1.4rem 1.5rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      line-height: 1.6;
+      white-space: pre;
+      overflow-x: auto;
+      color: var(--fg);
+      min-height: 300px;
+      position: relative;
+      z-index: 2;
+      transition: font-size 0.3s;
+    }
+
+    .terminal-body .ascii {
+      color: var(--red);
+      font-size: 0.65rem;
+      line-height: 1.15;
+      display: block;
+      margin-bottom: 0.7rem;
+      text-shadow: 0 0 20px rgba(247, 118, 142, 0.2);
+    }
+
+    .terminal-body .key { color: var(--blue); }
+    .terminal-body .val { color: var(--fg-bright); }
+    .terminal-body .accent { color: var(--red); }
+    .terminal-body .muted { color: var(--comment); }
+
+    /* ---------- Дотфайлы ---------- */
+    .dotfiles-card {
+      padding: 2.4rem 2.2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.3rem;
+      transform-style: preserve-3d;
+      will-change: transform;
+      transition: border-color var(--dur-hover) var(--ease-hover), box-shadow var(--dur-hover) var(--ease-hover);
+    }
+
+    .dotfiles-card:hover {
+      border-color: rgba(122, 162, 247, 0.28);
+      box-shadow:
+        0 24px 60px -22px rgba(0, 0, 0, 0.8),
+        0 0 50px -16px rgba(122, 162, 247, 0.2),
+        inset 0 1px 0 var(--glass-highlight);
+    }
+
+    .dotfiles-card__row {
+      display: flex;
+      align-items: center;
+      gap: 0.9rem;
+      font-size: 0.95rem;
+      color: var(--comment);
+    }
+
+    .dotfiles-card__row svg {
+      color: var(--blue);
+      flex-shrink: 0;
+    }
+
+    .dotfiles-card__row code {
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--fg-bright);
+      background: rgba(122, 162, 247, 0.08);
+      padding: 0.18rem 0.5rem;
+      border-radius: 6px;
+      font-size: 0.88rem;
+    }
+
+    /* ---------- Футер ---------- */
+    .footer-cta {
+      position: relative;
+      z-index: 1;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 6rem 3rem 7rem;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.8rem;
+    }
+
+    .footer-cta h2 {
+      font-size: clamp(2.2rem, 5vw, 4rem);
+      font-weight: 700;
+      letter-spacing: -0.045em;
+      color: var(--fg-bright);
+      line-height: 1.05;
+    }
+
+    .footer-cta h2 em {
+      font-style: normal;
+      color: var(--red);
+      text-shadow: 0 0 40px rgba(247, 118, 142, 0.35);
+    }
+
+    .footer-cta p {
+      color: var(--comment);
+      max-width: 50ch;
+      font-size: 1.02rem;
+      line-height: 1.65;
+    }
+
+    .footer-cta .btn--primary {
+      padding: 1.15rem 3.2rem;
+      font-size: 1.08rem;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 2rem;
+      margin-top: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .footer-links a {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--comment);
+      text-decoration: none;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.88rem;
+      transition: color 0.6s var(--ease-hover), text-shadow 0.6s var(--ease-hover);
+    }
+
+    .footer-links a:hover {
+      color: var(--blue);
+      text-shadow: 0 0 18px rgba(122, 162, 247, 0.5);
+    }
+
+    .footer-note {
+      margin-top: 3rem;
+      font-size: 0.78rem;
+      color: var(--comment);
+      opacity: 0.6;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* ---------- Тилт карточек за курсором ---------- */
+    .principle-card.is-tilting,
+    .hazard-card.is-tilting,
+    .terminal-card.is-tilting,
+    .dotfiles-card.is-tilting {
+      z-index: 5;
+      transition:
+        border-color var(--dur-hover) var(--ease-hover),
+        box-shadow var(--dur-hover) var(--ease-hover);
+    }
+
+    /* Без JS-тилта (тач) остаётся мягкий CSS-подъём */
+    body.has-tilt .principle-card:hover,
+    body.has-tilt .hazard-card:hover {
+      transform: none;
+    }
+
+    /* ---------- Reveal ---------- */
+    .reveal {
+      opacity: 0;
+      transform: translateY(32px);
+      filter: blur(3px);
+      transition:
+        opacity 0.9s var(--ease-out),
+        transform 0.9s var(--ease-out),
+        filter 0.9s var(--ease-out);
+      will-change: opacity, transform, filter;
+    }
+
+    .reveal.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+      filter: blur(0);
+    }
+
+    /* Стаггер внутри гридов */
+    .principles-grid .reveal:nth-child(2) { transition-delay: 0.1s; }
+    .principles-grid .reveal:nth-child(3) { transition-delay: 0.2s; }
+
+    .hazard-grid .reveal:nth-child(2) { transition-delay: 0.06s; }
+    .hazard-grid .reveal:nth-child(3) { transition-delay: 0.12s; }
+    .hazard-grid .reveal:nth-child(4) { transition-delay: 0.18s; }
+    .hazard-grid .reveal:nth-child(5) { transition-delay: 0.24s; }
+
+    .terminals-grid .terminal-card:nth-child(3) { transition-delay: 0.1s; }
+
+    /* ---------- Адаптив ---------- */
+    @media (max-width: 1200px) {
+      .hero {
+        gap: 2rem;
+        padding: 2.2rem 1.8rem 2.6rem;
+      }
+      .section { padding: 4rem 1.8rem; }
+      .principles-grid { gap: 1.2rem; }
+    }
+
+    @media (max-width: 1024px) {
+      .hero {
+        grid-template-columns: 1fr;
+        padding: 2rem 1.6rem 2.2rem;
+        min-height: auto;
+        gap: 2.5rem;
+      }
+      .hero__ascii-desktop { display: none; }
+      .hero__ascii-mobile { display: block; }
+      .hero__terminal { display: none; }
+      .principles-grid { grid-template-columns: 1fr; }
+      .terminals-grid { grid-template-columns: 1fr; }
+      .terminal-glow { display: none; }
+    }
+
+    @media (max-width: 768px) {
+      .nav {
+        padding: 0.55rem 1rem;
+        margin: 0 0.8rem;
+        flex-wrap: wrap;
+        gap: 0.6rem;
+      }
+      .nav__links { gap: 1.1rem; flex-wrap: wrap; justify-content: flex-end; row-gap: 0.4rem; }
+      .nav__links a { font-size: 0.85rem; }
+      .nav__brand { font-size: 0.98rem; }
+      .section { padding: 3rem 1.3rem; }
+      .hero { padding: 1.8rem 1.3rem 1.8rem; }
+      .footer-cta { padding: 4rem 1.4rem 5rem; }
+      .section__title { font-size: clamp(1.7rem, 5vw, 2.4rem); }
+      .carousel-nav { width: 44px; height: 44px; }
+      .carousel-nav--prev { left: 0.7rem; }
+      .carousel-nav--next { right: 0.7rem; }
+      .dotfiles-card { padding: 1.8rem 1.5rem; }
+      .dotfiles-card__row { font-size: 0.88rem; }
+      .terminal-body { font-size: 0.72rem; min-height: 260px; }
+      .terminal-body .ascii { font-size: 0.6rem; }
+    }
+
+    @media (max-width: 480px) {
+      .nav__links { gap: 0.8rem; }
+      .nav__links a { font-size: 0.8rem; }
+      .nav__cta { padding: 0.45rem 0.9rem; }
+      .hero__title { font-size: clamp(2.4rem, 12vw, 3.5rem); }
+      .hero__subtitle { font-size: 0.95rem; }
+      .hero__actions { flex-direction: column; align-items: stretch; }
+      .btn { justify-content: center; }
+      .principles-grid { gap: 1rem; }
+      .hazard-grid { grid-template-columns: 1fr; gap: 0.9rem; }
+      .principle-card { padding: 1.8rem 1.5rem; }
+      .hazard-card { padding: 1.5rem 1.3rem; }
+      .carousel-nav { width: 38px; height: 38px; }
+      .footer-links { gap: 1.2rem; }
+      .terminal-body { padding: 1rem 1.1rem; font-size: 0.68rem; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+      .reveal { opacity: 1; transform: none; filter: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg-layer bg-layer--glow" id="bgGlow"></div>
+  <div class="bg-layer bg-layer--noise"></div>
+  <div class="bg-layer bg-layer--grid"></div>
+  <div class="bg-layer bg-layer--meow" aria-hidden="true">
+    <div class="meow-word" id="meowWord"><span class="meow-letter">m</span><span class="meow-letter">e</span><span class="meow-letter">o</span><span class="meow-letter">w</span></div>
+  </div>
+
+  <nav class="nav">
+    <a href="#" class="nav__brand">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5c.67 0 1.35.09 2 .26 1.78-2 5.03-2.84 6.42-2.26 1.4.58-.42 7-.42 7 .57 1.07 1 2.24 1 3.44C21 17.9 16.97 21 12 21s-9-3-9-7.56c0-1.25.5-2.4 1-3.44 0 0-1.89-6.42-.5-7 1.39-.58 4.72.23 6.5 2.23A9.04 9.04 0 0 1 12 5Z"/></svg>
+      Meow <span>Linux</span>
+    </a>
+    <div class="nav__links">
+      <a href="#principles">Принципы</a>
+      <a href="#hazards">Опасности</a>
+      <a href="#screens">Скриншоты</a>
+      <a href="#dotfiles">Дотфайлы</a>
+      <a href="https://example.com" class="nav__cta">Скачать</a>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="hero__content">
+      <div class="hero__ascii-mobile">
+   |\\      _,,,---,,_
+   /,`.-'`'    -.  ;-;;,_
+  |,4-  ) )-,_..;\\ (  `'-'
+ '---''(_/--'  `-'\\_)
+      </div>
+      <h1 class="hero__title">Meow <em>Linux</em></h1>
+      <p class="hero__subtitle">
+        <strong>OS для людей с IQ выше, чем у стула.</strong><br>
+        Гиперминималистичный Linux на бинарных пакетах Void. Без systemd. Без X11. Без автоматических триггеров.
+      </p>
+      <div class="hero__actions">
+        <a href="https://example.com" class="btn btn--primary">
+          <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+          Скачать ISO
+        </a>
+        <a href="https://example.com/wiki" class="btn btn--ghost">
+          <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
+          Wiki проекта
+        </a>
+      </div>
+    </div>
+    <div class="hero__terminal">
+      <div class="hero__ascii-desktop" id="asciiHero">⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡾⠉⠀⠀⠉⠳⣄⣀⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⣤⠶⠷⣤⡞⠉⠙⠚⠋⠉⠉⠉⠙⠓⠶⣤⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⡴⠛⠉⠀⠉⢑⠀⠀⠀⠀⠦⢤⣀⠀⠉⠒⠤⣀⠀⠙⢷⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⠞⠉⠀⠀⠀⢀⠔⠋⠀⠀⠀⠀⠀⠀⠈⠻⣆⠀⠀⠈⠃⠀⠀⢙⣷⣤⡀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⡴⠋⠀⠀⠀⠀⡰⠋⠀⠀⠀⠀⠀⠀⢀⠀⠀⠀⠙⡆⠀⣴⠋⠉⠉⣻⣧⣈⡻⣦⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⠞⠁⢀⠀⠀⠀⠀⣰⠁⠀⠀⠀⠀⠀⠀⠀⠀⢆⠀⠀⠀⠹⡀⢸⡄⠀⣠⣿⠉⠛⢷⣿⠇⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡼⠁⣠⣶⠏⠀⠀⢠⣿⡏⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⡄⠀⠀⠀⢇⠀⠛⠛⣻⡇⠀⠀⠀⠙⢷⣄⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⣼⢃⡞⢁⡟⠀⠀⠀⣿⠃⣧⠀⠀⠀⠀⠀⠀⣴⡄⠀⠀⢣⠀⠀⠀⢸⠀⠀⡴⢻⠃⠀⠀⠀⠀⠀⠙⠷⣤⣄⣠
+⠀⢀⠀⠀⠈⢷⠀⠀⠀⣿⣸⠀⣸⠁⠀⠀⢰⠇⠘⠹⣦⠀⣷⣄⠀⠀⡟⠙⢦⣄⣸⠀⠀⠀⢸⡖⠋⢀⢿⠀⠀⢆⠀⠀⠀⠀⠀⠀⣀⣴
+⠀⠈⠳⠄⠀⠀⠀⠀⠀⠘⣿⡿⠋⠀⡸⠀⢸⣠⣤⣤⡈⠛⠛⠈⠛⠒⢋⣠⣤⣈⢹⠀⠀⠀⢸⣿⡖⢋⣼⠀⠀⠀⠣⡀⠀⠹⣿⠉⠉⠀
+⢤⣄⣀⠀⠀⠀⠀⢸⣒⠉⠁⢀⡀⢠⡇⠀⢺⠿⢹⣶⡅⠀⠀⠀⠀⠀⠀⣽⣍⠻⢿⡆⠀⠀⢸⣟⣛⠛⢾⠀⠀⠀⢀⠈⠂⠀⢻⣄⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠉⠉⠉⢹⡇⢻⡇⠀⢸⡇⠸⣿⣿⠀⠀⠀⠀⠀⠀⣿⣿⡆⢈⠇⠀⠀⢸⡏⠁⠁⢸⡄⠀⠀⠈⠆⠀⡀⠀⢻⡄⠀
+⠀⠒⠛⠁⠀⠀⠀⠀⢀⣤⣤⣘⢷⣄⣇⠀⢸⣧⡀⠰⠇⠀⠀⠄⠀⠀⠀⢉⣉⠁⢸⠀⠀⢀⣿⣀⣀⣠⣾⡇⠀⠀⠀⠀⠀⢿⡀⢸⡇⠀
+⠀⠀⠀⠀⠀⠀⠀⢀⡾⠁⠀⠙⠻⣯⡽⠷⢼⣿⣿⣶⡦⠖⠛⢶⣄⣀⣀⠈⣥⣴⣾⣤⣾⣾⣿⣿⠋⢁⣼⣷⠀⢀⡄⠀⣠⣿⣧⠞⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⣼⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠁⠀⠀⠀⠈⣿⡿⠛⠛⠛⢋⠡⠝⢿⣯⣁⡙⠛⠋⠻⠷⠞⠋⠓⠛⠋⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⢠⡟⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⡇⠈⠀⢁⣠⣶⣾⣿⣿⣿⣿⣷⡄⢀⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⢀⡴⠋⠀⠀⠀⣶⣶⠄⠀⠀⠀⠀⣤⣶⡄⠀⠀⠀⠀⠀⢷⡀⣴⣿⣿⣿⣿⠟⠛⠉⠉⠻⣷⣿⣿⣧⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠚⢉⣿⣟⣀⠀⠀⠀⠉⠉⠀⠐⠒⠤⠀⠙⠛⣉⠄⠀⠀⠤⠤⢤⡿⠛⠉⣀⣀⣀⡈⠓⢦⡀⠀⠸⣿⣿⢿⣿⣶⣦⡀⠀⠀⠀⠀⠀
+⠀⠀⢠⠯⠾⠻⣧⠔⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣛⠲⣤⣼⣁⡀⠛⠉⠀⢈⣿⠀⠀⢳⠀⠀⢿⣿⣿⣿⣿⣿⣿⣿⣶⣤⠀⠀
+⠀⠀⣿⠀⠀⠀⢸⠟⣶⠀⠀⠀⢀⠀⠀⠀⠀⣀⠀⠀⠀⡠⠞⠋⠁⠀⠀⠉⠛⠛⠛⡋⠀⠀⠀⠈⡇⠀⢸⣿⣿⣿⣿⣿⣿⢻⣿⡏⠀⠀
+⠀⠀⢿⡄⠀⠀⢸⡄⣿⡀⠀⠀⢸⡦⢤⡀⠀⡇⠀⠀⡼⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠠⠀⠀⠀⠀⠁⠀⢸⣿⣿⣿⣿⣿⡿⣿⣟⡀⠀⠀
+⠀⠀⠈⢿⣄⣀⣠⣴⠛⠷⣤⣤⡿⠀⠀⠈⠑⣿⢦⣴⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠀⠀⠀⠀⠀⠘⠀⠘⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠆
+⠀⠀⠀⠀⠉⢿⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣷⠐⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⡀⠀⣿⣿⣿⣼⣿⣷⣾⣿⣿⠟⠀
+⠀⠀⠀⠀⠀⠀⣧⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⢷⣌⣁⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⣭⣀⠀⣿⣿⣿⣿⣿⣿⣿⣿⡇⠀⠀
+⠀⠀⠀⠀⠀⢀⣼⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠹⣦⡀⠀⠀⠀⠀⠀⠀⠀⢀⣠⡴⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡇⠀⠀</div>
+    </div>
+  </header>
+
+  <section class="section" id="principles">
+    <div class="section__head reveal">
+      <span class="section__label">// философия</span>
+      <h2 class="section__title">Три принципа. Ноль компромиссов.</h2>
+      <p class="section__desc">Система не делает ничего за спиной. Каждый шаг — явный. Каждая команда — ваша.</p>
+    </div>
+    <div class="principles-grid">
+      <article class="glass principle-card reveal">
+        <div class="principle-card__icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+        </div>
+        <h3>Прозрачность</h3>
+        <p>Обновилось ядро — meow говорит: запусти <code>dracut --force</code>. Обновились шрифты — <code>fc-cache -fv</code>. Никаких фоновых триггеров.</p>
+      </article>
+      <article class="glass principle-card reveal">
+        <div class="principle-card__icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+        </div>
+        <h3>100% ручное управление</h3>
+        <p>meow upgrade не запускает dracut. meow install не запускает fc-cache. Это не баг. Это фича. Вы решаете, когда что происходит.</p>
+      </article>
+      <article class="glass principle-card reveal">
+        <div class="principle-card__icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" x2="20" y1="19" y2="19"/></svg>
+        </div>
+        <h3>KISS</h3>
+        <p>Один бинарник на Go. Конфиг на пять строк. Без systemd. Без X11. Без 32-бит multilib. Меньше кода — меньше багов.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="section" id="hazards">
+    <div class="section__head reveal">
+      <span class="section__label">// зона риска</span>
+      <h2 class="section__title">Пять вещей, которые ты забудешь сделать — и сломаешь систему.</h2>
+      <p class="section__desc">Здесь будут плейсхолдеры. Позже — конкретные команды и последствия.</p>
+    </div>
+    <div class="hazard-grid">
+      <article class="glass hazard-card reveal">
+        <span class="hazard-card__num">01</span>
+        <div><h4>Забыть dracut после ядра</h4><p>Плейсхолдер: последствия и точная команда.</p></div>
+      </article>
+      <article class="glass hazard-card reveal">
+        <span class="hazard-card__num">02</span>
+        <div><h4>Забыть fc-cache после шрифтов</h4><p>Плейсхолдер: почему текст останется «квадратиками».</p></div>
+      </article>
+      <article class="glass hazard-card reveal">
+        <span class="hazard-card__num">03</span>
+        <div><h4>Забыть ldconfig после библиотек</h4><p>Плейсхолдер: как поймать «undefined symbol».</p></div>
+      </article>
+      <article class="glass hazard-card reveal">
+        <span class="hazard-card__num">04</span>
+        <div><h4>Забыть etc-update</h4><p>Плейсхолдер: конфликт конфигов и .meow-new.</p></div>
+      </article>
+      <article class="glass hazard-card reveal">
+        <span class="hazard-card__num">05</span>
+        <div><h4>Забыть enable сервис</h4><p>Плейсхолдер: почему seatd не поднялся.</p></div>
+      </article>
+    </div>
+  </section>
+
+  <section class="section" id="screens">
+    <div class="section__head reveal">
+      <span class="section__label">// интерфейс</span>
+      <h2 class="section__title">Как это выглядит.</h2>
+      <p class="section__desc">Карусель. Скриншоты меняются каждые 3 секунды, если не листать вручную.</p>
+    </div>
+    <div class="glass carousel-wrap reveal" id="carousel">
+      <div class="carousel-track" id="carouselTrack">
+        <div class="carousel-slide">Скриншот 01 — плейсхолдер</div>
+        <div class="carousel-slide">Скриншот 02 — плейсхолдер</div>
+        <div class="carousel-slide">Скриншот 03 — плейсхолдер</div>
+        <div class="carousel-slide">Скриншот 04 — плейсхолдер</div>
+      </div>
+      <button class="carousel-nav carousel-nav--prev" id="carouselPrev" aria-label="Предыдущий слайд">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <button class="carousel-nav carousel-nav--next" id="carouselNext" aria-label="Следующий слайд">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+    </div>
+    <div class="carousel-dots" id="carouselDots"></div>
+  </section>
+
+  <section class="section" id="terminals">
+    <div class="section__head reveal">
+      <span class="section__label">// терминал</span>
+      <h2 class="section__title">Kitty. Fastfetch. Без украшений.</h2>
+    </div>
+    <div class="terminals-grid" id="terminalsGrid">
+      <div class="terminal-glow" id="terminalGlow"></div>
+
+      <div class="glass terminal-card reveal">
+        <div class="terminal-bar">
+          <div class="terminal-dots">
+            <span class="terminal-dot terminal-dot--red"></span>
+            <span class="terminal-dot terminal-dot--yellow"></span>
+            <span class="terminal-dot terminal-dot--green"></span>
+          </div>
+          <span class="terminal-title">kitty — fastfetch</span>
+        </div>
+        <div class="terminal-body"><span class="ascii">   |\\      _,,,---,,_
+   /,`.-'`'    -.  ;-;;,_
+  |,4-  ) )-,_..;\\ (  `'-'
+ '---''(_/--'  `-'\\_)</span><span class="accent">meow</span><span class="muted">@</span><span class="accent">meow-linux</span>
+<span class="muted">-------------------</span>
+<span class="key">OS</span>      <span class="val">Meow Linux x86_64</span>
+<span class="key">Kernel</span>  <span class="val">6.12.9_1</span>
+<span class="key">WM</span>      <span class="val">mango</span>
+<span class="key">Shell</span>   <span class="val">zsh 5.9</span>
+<span class="key">CPU</span>     <span class="val">AMD Ryzen 5 5600 (12) @ 3.5GHz</span>
+<span class="key">GPU</span>     <span class="val">NVIDIA GeForce RTX 3060</span>
+<span class="key">Memory</span>  <span class="val">32GB DDR4</span>
+<span class="key">Init</span>    <span class="val">runit</span>
+<span class="key">Packages</span> <span class="val">412 (xbps)</span>
+<span class="key">Terminal</span> <span class="val">kitty</span></div>
+      </div>
+
+      <div class="glass terminal-card reveal">
+        <div class="terminal-bar">
+          <div class="terminal-dots">
+            <span class="terminal-dot terminal-dot--red"></span>
+            <span class="terminal-dot terminal-dot--yellow"></span>
+            <span class="terminal-dot terminal-dot--green"></span>
+          </div>
+          <span class="terminal-title">kitty — placeholder</span>
+        </div>
+        <div class="terminal-body"><span class="muted"># Плейсхолдер. Здесь будет что-то полезное.</span>
+<span class="accent">$</span> meow sync
+<span class="muted">:: синхронизация репозиториев...</span>
+<span class="accent">$</span> meow upgrade
+<span class="muted">:: доступно 3 обновления</span>
+<span class="key">warning</span><span class="val">: ядро обновлено — запусти dracut --force</span>
+<span class="accent">$</span> meow etc-update
+<span class="muted">:: конфликтов не найдено</span>
+<span class="accent">$</span> meow enable seatd
+<span class="muted">:: сервис активирован</span>
+<span class="accent">$</span> <span class="muted">_</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="dotfiles">
+    <div class="section__head reveal">
+      <span class="section__label">// конфигурация</span>
+      <h2 class="section__title">Фирменные дотфайлы.</h2>
+      <p class="section__desc">Универсальные конфиги для waybar, foot, mako, swaybg, wofi. Работают в любом Wayland-WM. Меняется только компоситор.</p>
+    </div>
+    <div class="glass dotfiles-card reveal">
+      <div class="dotfiles-card__row">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>
+        <span>Репозиторий дотфайлов: <code>git.example.com/meow/dotfiles</code></span>
+      </div>
+      <div class="dotfiles-card__row">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg>
+        <span>Готовые конфиги для <code>mango</code> и <code>labwc</code> — в <code>/etc/motd</code> после установки.</span>
+      </div>
+      <div class="dotfiles-card__row">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+        <span>Плейсхолдер: ссылка на зеркало и инструкция по клонированию.</span>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer-cta reveal">
+    <h2>Поставь. Сломай. <em>Почини.</em></h2>
+    <p>Meow Linux — не для всех. Если ты знаешь, что такое dracut, fstab и runlevel — тебе сюда.</p>
+    <a href="https://example.com" class="btn btn--primary">
+      <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+      Скачать Meow Linux
+    </a>
+    <div class="footer-links">
+      <a href="https://example.com/wiki">
+        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
+        Wiki
+      </a>
+      <a href="https://example.com/github">
+        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>
+        GitHub
+      </a>
+    </div>
+    <p class="footer-note">Meow Linux — личный проект. Не корпоративный продукт. Не «замена Ubuntu».</p>
+  </footer>
+
+  <script>
+    (function () {
+      'use strict';
+
+      // Считаем указатель «мышиным», если он не тач (pointer: none тоже проходит)
+      const hasMouse = !window.matchMedia('(pointer: coarse)').matches;
+      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      // ---------- Reveal ----------
+      const reveals = document.querySelectorAll('.reveal');
+      const revealObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible');
+            revealObserver.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+      reveals.forEach(el => revealObserver.observe(el));
+
+      // ---------- Карусель ----------
+      const track = document.getElementById('carouselTrack');
+      const slides = track ? Array.from(track.children) : [];
+      const dotsContainer = document.getElementById('carouselDots');
+      const prevBtn = document.getElementById('carouselPrev');
+      const nextBtn = document.getElementById('carouselNext');
+      let currentIndex = 0;
+      let autoplayTimer = null;
+      const AUTOPLAY_DELAY = 3000;
+
+      function buildDots() {
+        if (!dotsContainer || slides.length === 0) return;
+        slides.forEach((_, i) => {
+          const dot = document.createElement('button');
+          dot.className = 'carousel-dot' + (i === 0 ? ' active' : '');
+          dot.setAttribute('aria-label', 'Слайд ' + (i + 1));
+          dot.addEventListener('click', () => {
+            goToSlide(i);
+            resetAutoplay();
+          });
+          dotsContainer.appendChild(dot);
+        });
+      }
+
+      function goToSlide(index) {
+        if (!track || slides.length === 0) return;
+        currentIndex = (index + slides.length) % slides.length;
+        track.style.transform = `translateX(-${currentIndex * 100}%)`;
+        const dots = dotsContainer ? dotsContainer.children : [];
+        for (let i = 0; i < dots.length; i++) {
+          dots[i].classList.toggle('active', i === currentIndex);
+        }
+      }
+
+      function nextSlide() { goToSlide(currentIndex + 1); }
+      function prevSlide() { goToSlide(currentIndex - 1); }
+
+      function startAutoplay() {
+        if (slides.length <= 1) return;
+        autoplayTimer = setInterval(nextSlide, AUTOPLAY_DELAY);
+      }
+
+      function resetAutoplay() {
+        if (autoplayTimer) clearInterval(autoplayTimer);
+        startAutoplay();
+      }
+
+      if (track && slides.length > 0) {
+        buildDots();
+        startAutoplay();
+
+        prevBtn && prevBtn.addEventListener('click', () => { prevSlide(); resetAutoplay(); });
+        nextBtn && nextBtn.addEventListener('click', () => { nextSlide(); resetAutoplay(); });
+
+        const carouselWrap = document.getElementById('carousel');
+        if (carouselWrap) {
+          carouselWrap.addEventListener('mouseenter', () => {
+            if (autoplayTimer) clearInterval(autoplayTimer);
+          });
+          carouselWrap.addEventListener('mouseleave', () => {
+            resetAutoplay();
+          });
+        }
+
+        let touchStartX = 0, touchEndX = 0;
+        track.addEventListener('touchstart', (e) => {
+          touchStartX = e.changedTouches[0].screenX;
+          if (autoplayTimer) clearInterval(autoplayTimer);
+        }, { passive: true });
+
+        track.addEventListener('touchend', (e) => {
+          touchEndX = e.changedTouches[0].screenX;
+          const diff = touchStartX - touchEndX;
+          if (Math.abs(diff) > 50) {
+            if (diff > 0) goToSlide(currentIndex + 1);
+            else goToSlide(currentIndex - 1);
+          }
+          resetAutoplay();
+        }, { passive: true });
+      }
+
+      // ---------- Параллакс ASCII в hero ----------
+      const asciiHero = document.getElementById('asciiHero');
+      let mouseX = 0, mouseY = 0;
+      let currentX = 0, currentY = 0;
+
+      if (asciiHero && hasMouse) {
+        document.addEventListener('mousemove', (e) => {
+          mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+          mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+        });
+
+        (function animateAscii() {
+          currentX += (mouseX - currentX) * 0.06;
+          currentY += (mouseY - currentY) * 0.06;
+          asciiHero.style.transform = `perspective(1000px) rotateY(${currentX * 2.2}deg) rotateX(${-currentY * 1.6}deg)`;
+          requestAnimationFrame(animateAscii);
+        })();
+      }
+
+      // ---------- Тилт карточек: приближение + следование за курсором ----------
+      const finePointer = hasMouse;
+      const tiltCards = Array.from(document.querySelectorAll('.principle-card, .hazard-card, .terminal-card, .dotfiles-card'));
+
+      if (finePointer && !reducedMotion && tiltCards.length) {
+        document.body.classList.add('has-tilt');
+
+        const TILT_DEG = 4;
+        const ZOOM = 1.045;
+        const tiltState = new Map();
+        const lerp = (a, b, t) => a + (b - a) * t;
+
+        tiltCards.forEach(card => {
+          const st = { rx: 0, ry: 0, tx: 0, ty: 0, s: 1, trx: 0, try_: 0, ttx: 0, tty: 0, ts: 1, hover: false, armed: false };
+          tiltState.set(card, st);
+
+          card.addEventListener('pointerenter', () => {
+            st.hover = true;
+            if (!st.armed) {
+              st.armed = true;
+              card.classList.add('is-tilting');
+            }
+          });
+
+          card.addEventListener('pointermove', (e) => {
+            const r = card.getBoundingClientRect();
+            if (!r.width || !r.height) return;
+            const px = (e.clientX - r.left) / r.width;
+            const py = (e.clientY - r.top) / r.height;
+            st.try_ = (px - 0.5) * 2 * TILT_DEG;
+            st.trx = -(py - 0.5) * 2 * TILT_DEG;
+            st.ttx = (px - 0.5) * 10;
+            st.tty = (py - 0.5) * 10 - 2;
+            st.ts = ZOOM;
+          });
+
+          card.addEventListener('pointerleave', () => {
+            st.hover = false;
+            st.trx = 0;
+            st.try_ = 0;
+            st.ttx = 0;
+            st.tty = 0;
+            st.ts = 1;
+          });
+        });
+
+        (function animateTilt() {
+          tiltState.forEach((st, card) => {
+            if (!st.armed) return;
+            const k = st.hover ? 0.12 : 0.05;
+            st.rx = lerp(st.rx, st.trx, k);
+            st.ry = lerp(st.ry, st.try_, k);
+            st.tx = lerp(st.tx, st.ttx, k);
+            st.ty = lerp(st.ty, st.tty, k);
+            st.s = lerp(st.s, st.ts, k);
+            card.style.transform =
+              'perspective(1200px) rotateX(' + st.rx.toFixed(2) + 'deg) rotateY(' + st.ry.toFixed(2) + 'deg) ' +
+              'translate3d(' + st.tx.toFixed(2) + 'px, ' + st.ty.toFixed(2) + 'px, 0) scale(' + st.s.toFixed(4) + ')';
+          });
+          requestAnimationFrame(animateTilt);
+        })();
+      }
+
+      // ---------- Фоновая надпись meow: её можно толкать курсором ----------
+      const meowWord = document.getElementById('meowWord');
+
+      if (meowWord) {
+        if (!finePointer || reducedMotion) {
+          meowWord.style.opacity = '0.75';
+        } else {
+          const letters = Array.from(meowWord.children).map(el => ({
+            el: el, x: 0, y: 0, vx: 0, vy: 0, bx: 0, by: 0
+          }));
+
+          const RADIUS = 300;
+          const PUSH = 4300;
+          const SPRING = 26;
+          const DAMP = 4.2;
+
+          let mx = -99999;
+          let my = -99999;
+
+          function measureMeow() {
+            letters.forEach(L => {
+              const r = L.el.getBoundingClientRect();
+              L.bx = r.left + r.width / 2 - L.x;
+              L.by = r.top + r.height / 2 - L.y;
+            });
+          }
+
+          measureMeow();
+          window.addEventListener('resize', measureMeow);
+          if (document.fonts && document.fonts.ready) {
+            document.fonts.ready.then(measureMeow);
+          }
+
+          window.addEventListener('pointermove', (e) => {
+            mx = e.clientX;
+            my = e.clientY;
+          }, { passive: true });
+
+          document.addEventListener('pointerleave', () => { mx = -99999; my = -99999; });
+
+          let meowLast = performance.now();
+
+          (function animateMeow(now) {
+            const dt = Math.min((now - meowLast) / 1000, 0.033);
+            meowLast = now;
+
+            letters.forEach(L => {
+              const cxp = L.bx + L.x;
+              const cyp = L.by + L.y;
+              const dx = cxp - mx;
+              const dy = cyp - my;
+              const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+
+              let ax = -L.x * SPRING - L.vx * DAMP;
+              let ay = -L.y * SPRING - L.vy * DAMP;
+
+              if (dist < RADIUS) {
+                const force = (1 - dist / RADIUS) * PUSH;
+                ax += (dx / dist) * force;
+                ay += (dy / dist) * force;
+              }
+
+              L.vx += ax * dt;
+              L.vy += ay * dt;
+              L.x += L.vx * dt;
+              L.y += L.vy * dt;
+
+              L.el.style.transform =
+                'translate3d(' + L.x.toFixed(2) + 'px, ' + L.y.toFixed(2) + 'px, 0) rotate(' + (L.x * 0.04).toFixed(2) + 'deg)';
+            });
+
+            requestAnimationFrame(animateMeow);
+          })(meowLast);
+        }
+      }
+
+      // ---------- Параллакс фонового свечения ----------
+      const bgGlow = document.getElementById('bgGlow');
+      if (bgGlow && hasMouse) {
+        let tx = 0, ty = 0, cx = 0, cy = 0;
+        document.addEventListener('mousemove', (e) => {
+          tx = e.clientX / window.innerWidth - 0.5;
+          ty = e.clientY / window.innerHeight - 0.5;
+        });
+        (function animateBg() {
+          cx += (tx - cx) * 0.04;
+          cy += (ty - cy) * 0.04;
+          bgGlow.style.background = `
+            radial-gradient(ellipse 60% 45% at ${18 + cx * 8}% ${12 + cy * 8}%, rgba(122, 162, 247, 0.14), transparent 65%),
+            radial-gradient(ellipse 55% 50% at ${82 - cx * 6}% ${78 - cy * 6}%, rgba(187, 154, 247, 0.11), transparent 65%),
+            radial-gradient(ellipse 40% 35% at ${50 + cx * 4}% ${45 + cy * 4}%, rgba(247, 118, 142, 0.07), transparent 70%)
+          `;
+          requestAnimationFrame(animateBg);
+        })();
+      }
+
+      // ---------- Ambient glow в терминалах ----------
+      const terminalsGrid = document.getElementById('terminalsGrid');
+      const terminalGlow = document.getElementById('terminalGlow');
+      const terminalCards = terminalsGrid ? terminalsGrid.querySelectorAll('.terminal-card') : [];
+
+      if (terminalsGrid && terminalGlow && hasMouse) {
+        let tx = 0, ty = 0, cx = 0, cy = 0;
+        let targetOpacity = 0;
+        let leaveTimer = null;
+        let initialized = false;
+
+        terminalsGrid.addEventListener('mousemove', (e) => {
+          const r = terminalsGrid.getBoundingClientRect();
+          tx = e.clientX - r.left;
+          ty = e.clientY - r.top;
+          if (!initialized) { cx = tx; cy = ty; initialized = true; }
+        });
+
+        terminalCards.forEach(card => {
+          card.addEventListener('mouseenter', () => {
+            if (leaveTimer) { clearTimeout(leaveTimer); leaveTimer = null; }
+            targetOpacity = 1;
+          });
+          card.addEventListener('mouseleave', () => {
+            leaveTimer = setTimeout(() => { targetOpacity = 0; }, 280);
+          });
+        });
+
+        (function animateTerminalGlow() {
+          cx += (tx - cx) * 0.09;
+          cy += (ty - cy) * 0.09;
+          terminalGlow.style.transform = `translate(${cx}px, ${cy}px) translate(-50%, -50%)`;
+          terminalGlow.style.opacity = targetOpacity;
+          requestAnimationFrame(animateTerminalGlow);
+        })();
+      } else if (terminalGlow) {
+        terminalGlow.style.display = 'none';
+      }
+
+    })();
+  </script>
+</body>
+</html>
