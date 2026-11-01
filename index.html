@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Meow Linux — OS для людей с IQ выше, чем у стула</title>
+  <title>Meow Linux -- OS для людей с IQ выше, чем у стула</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Archivo+Expanded:wght@600;700;800&family=JetBrains+Mono:wght@300;400;500;600&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -1030,8 +1030,8 @@
       </div>
       <h1 class="hero__title">Meow <em>Linux</em></h1>
       <p class="hero__subtitle">
-        <strong>OS для людей с IQ выше, чем у стула.</strong><br>
-        Гиперминималистичный Linux на бинарных пакетах Void. Без systemd. Без X11. Без автоматических триггеров.
+        <strong>OS для людей с IQ выше, чем у стула<span style="color: var(--red); text-shadow: 0 0 40px rgba(247, 118, 142, 0.3);">(?)</span>.</strong><br>
+        Минималистичный Linux на бинарных пакетах Void. Runit, 64bit-only, без автоматических триггеров.
       </p>
       <div class="hero__actions">
         <a href="https://example.com" class="btn btn--primary">
@@ -1076,8 +1076,8 @@
   <section class="section" id="principles">
     <div class="section__head reveal">
       <span class="section__label">// философия</span>
-      <h2 class="section__title">Три принципа. Ноль компромиссов.</h2>
-      <p class="section__desc">Система не делает ничего за спиной. Каждый шаг — явный. Каждая команда — ваша.</p>
+      <h2 class="section__title">Принципы проекта</h2>
+      <p class="section__desc">То, что делает из void linux Meow.</p>
     </div>
     <div class="principles-grid">
       <article class="glass principle-card reveal">
@@ -1085,21 +1085,21 @@
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
         </div>
         <h3>Прозрачность</h3>
-        <p>Обновилось ядро — meow говорит: запусти <code>dracut --force</code>. Обновились шрифты — <code>fc-cache -fv</code>. Никаких фоновых триггеров.</p>
+        <p>Обновление ядра -- варнинг с прозрачной просьбой запустить <code>dracut --force</code>. Обновление шрифтов -- <code>fc-cache -fv</code>. Ноль фона, сценарий варнинга под каждый post hook.</p>
       </article>
       <article class="glass principle-card reveal">
         <div class="principle-card__icon">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
         </div>
-        <h3>100% ручное управление</h3>
-        <p>meow upgrade не запускает dracut. meow install не запускает fc-cache. Это не баг. Это фича. Вы решаете, когда что происходит.</p>
+        <h3>Ручное управление, но удобное</h3>
+        <p>Для сервисов -- тоже <code>meow</code></p>
       </article>
       <article class="glass principle-card reveal">
         <div class="principle-card__icon">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" x2="20" y1="19" y2="19"/></svg>
         </div>
         <h3>KISS</h3>
-        <p>Один бинарник на Go. Конфиг на пять строк. Без systemd. Без X11. Без 32-бит multilib. Меньше кода — меньше багов.</p>
+        <p>Один бинарник на Go и конфиг на пять строк. Без 32bit, systemd и elogind</p>
       </article>
     </div>
   </section>
@@ -1107,17 +1107,17 @@
   <section class="section" id="hazards">
     <div class="section__head reveal">
       <span class="section__label">// зона риска</span>
-      <h2 class="section__title">Пять вещей, которые ты забудешь сделать — и сломаешь систему.</h2>
-      <p class="section__desc">Здесь будут плейсхолдеры. Позже — конкретные команды и последствия.</p>
+      <h2 class="section__title">Топ пять вещей которые ты забудешь сделать -- и сломаешь систему.</h2>
+      <p class="section__desc">За прозрачность тоже есть своя цена (⌒‿⌒)</p>
     </div>
     <div class="hazard-grid">
       <article class="glass hazard-card reveal">
         <span class="hazard-card__num">01</span>
-        <div><h4>Забыть dracut после ядра</h4><p>Плейсхолдер: последствия и точная команда.</p></div>
+        <div><h4>dracut --force</h4><p>Плейсхолдер: последствия и точная команда.</p></div>
       </article>
       <article class="glass hazard-card reveal">
         <span class="hazard-card__num">02</span>
-        <div><h4>Забыть fc-cache после шрифтов</h4><p>Плейсхолдер: почему текст останется «квадратиками».</p></div>
+        <div><h4>fc-cache</h4><p>Плейсхолдер: почему текст останется «квадратиками».</p></div>
       </article>
       <article class="glass hazard-card reveal">
         <span class="hazard-card__num">03</span>
@@ -1125,11 +1125,11 @@
       </article>
       <article class="glass hazard-card reveal">
         <span class="hazard-card__num">04</span>
-        <div><h4>Забыть etc-update</h4><p>Плейсхолдер: конфликт конфигов и .meow-new.</p></div>
+        <div><h4>etc-update</h4><p>Плейсхолдер: конфликт конфигов и .meow-new.</p></div>
       </article>
       <article class="glass hazard-card reveal">
         <span class="hazard-card__num">05</span>
-        <div><h4>Забыть enable сервис</h4><p>Плейсхолдер: почему seatd не поднялся.</p></div>
+        <div><h4>Поднять сервис</h4><p>Плейсхолдер: почему seatd не поднялся.</p></div>
       </article>
     </div>
   </section>
@@ -1137,15 +1137,15 @@
   <section class="section" id="screens">
     <div class="section__head reveal">
       <span class="section__label">// интерфейс</span>
-      <h2 class="section__title">Как это выглядит.</h2>
-      <p class="section__desc">Карусель. Скриншоты меняются каждые 3 секунды, если не листать вручную.</p>
+      <h2 class="section__title">Фирменные дотфайлы.</h2>
+      <p class="section__desc">Wayland и кошки.</p>
     </div>
     <div class="glass carousel-wrap reveal" id="carousel">
       <div class="carousel-track" id="carouselTrack">
-        <div class="carousel-slide">Скриншот 01 — плейсхолдер</div>
-        <div class="carousel-slide">Скриншот 02 — плейсхолдер</div>
-        <div class="carousel-slide">Скриншот 03 — плейсхолдер</div>
-        <div class="carousel-slide">Скриншот 04 — плейсхолдер</div>
+        <div class="carousel-slide">Скриншот 01 -- плейсхолдер</div>
+        <div class="carousel-slide">Скриншот 02 -- плейсхолдер</div>
+        <div class="carousel-slide">Скриншот 03 -- плейсхолдер</div>
+        <div class="carousel-slide">Скриншот 04 -- плейсхолдер</div>
       </div>
       <button class="carousel-nav carousel-nav--prev" id="carouselPrev" aria-label="Предыдущий слайд">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
@@ -1160,7 +1160,7 @@
   <section class="section" id="terminals">
     <div class="section__head reveal">
       <span class="section__label">// терминал</span>
-      <h2 class="section__title">Kitty. Fastfetch. Без украшений.</h2>
+      <h2 class="section__title">Красота в Cli.</h2>
     </div>
     <div class="terminals-grid" id="terminalsGrid">
       <div class="terminal-glow" id="terminalGlow"></div>
@@ -1172,12 +1172,12 @@
             <span class="terminal-dot terminal-dot--yellow"></span>
             <span class="terminal-dot terminal-dot--green"></span>
           </div>
-          <span class="terminal-title">kitty — fastfetch</span>
+          <span class="terminal-title">kitty -- fastfetch</span>
         </div>
         <div class="terminal-body"><span class="ascii">   |\\      _,,,---,,_
    /,`.-'`'    -.  ;-;;,_
   |,4-  ) )-,_..;\\ (  `'-'
- '---''(_/--'  `-'\\_)</span><span class="accent">meow</span><span class="muted">@</span><span class="accent">meow-linux</span>
+ '---''(_/--'  `-'\\_)</span><span class="key">llluz</span><span class="muted">@</span><span class="accent">meow-linux</span>
 <span class="muted">-------------------</span>
 <span class="key">OS</span>      <span class="val">Meow Linux x86_64</span>
 <span class="key">Kernel</span>  <span class="val">6.12.9_1</span>
@@ -1187,7 +1187,7 @@
 <span class="key">GPU</span>     <span class="val">NVIDIA GeForce RTX 3060</span>
 <span class="key">Memory</span>  <span class="val">32GB DDR4</span>
 <span class="key">Init</span>    <span class="val">runit</span>
-<span class="key">Packages</span> <span class="val">412 (xbps)</span>
+<span class="key">Packages</span> <span class="val">412 (meow)</span>
 <span class="key">Terminal</span> <span class="val">kitty</span></div>
       </div>
 
@@ -1198,18 +1198,14 @@
             <span class="terminal-dot terminal-dot--yellow"></span>
             <span class="terminal-dot terminal-dot--green"></span>
           </div>
-          <span class="terminal-title">kitty — placeholder</span>
+          <span class="terminal-title">kitty -- meow</span>
         </div>
         <div class="terminal-body"><span class="muted"># Плейсхолдер. Здесь будет что-то полезное.</span>
 <span class="accent">$</span> meow sync
-<span class="muted">:: синхронизация репозиториев...</span>
 <span class="accent">$</span> meow upgrade
-<span class="muted">:: доступно 3 обновления</span>
-<span class="key">warning</span><span class="val">: ядро обновлено — запусти dracut --force</span>
+<span class="key">warning</span><span class="val">: kernel updated, run: doas dracut --force</span>
 <span class="accent">$</span> meow etc-update
-<span class="muted">:: конфликтов не найдено</span>
-<span class="accent">$</span> meow enable seatd
-<span class="muted">:: сервис активирован</span>
+<span class="accent">$</span> meow enable sshd
 <span class="accent">$</span> <span class="muted">_</span></div>
       </div>
     </div>
@@ -1218,8 +1214,8 @@
   <section class="section" id="dotfiles">
     <div class="section__head reveal">
       <span class="section__label">// конфигурация</span>
-      <h2 class="section__title">Фирменные дотфайлы.</h2>
-      <p class="section__desc">Универсальные конфиги для waybar, foot, mako, swaybg, wofi. Работают в любом Wayland-WM. Меняется только компоситор.</p>
+      <h2 class="section__title">Фирменные дотфайлы</h2>
+      <p class="section__desc">Универсальные конфиги для waybar, foot, mako, wbg, fuzzel. Работают в любом Wayland-WM. Меняется только композитор.</p>
     </div>
     <div class="glass dotfiles-card reveal">
       <div class="dotfiles-card__row">
@@ -1228,7 +1224,7 @@
       </div>
       <div class="dotfiles-card__row">
         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg>
-        <span>Готовые конфиги для <code>mango</code> и <code>labwc</code> — в <code>/etc/motd</code> после установки.</span>
+        <span>Готовые конфиги для <code>mango</code> и <code>labwc</code> -- в <code>/etc/motd</code> после установки.</span>
       </div>
       <div class="dotfiles-card__row">
         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
@@ -1238,8 +1234,8 @@
   </section>
 
   <footer class="footer-cta reveal">
-    <h2>Поставь. Сломай. <em>Почини.</em></h2>
-    <p>Meow Linux — не для всех. Если ты знаешь, что такое dracut, fstab и runlevel — тебе сюда.</p>
+    <h2>Линукс который <em>Мяу.</em></h2>
+    <p>Во время создания проекта использовался генеративный ИИ.</p>
     <a href="https://example.com" class="btn btn--primary">
       <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
       Скачать Meow Linux
@@ -1254,7 +1250,7 @@
         GitHub
       </a>
     </div>
-    <p class="footer-note">Meow Linux — личный проект. Не корпоративный продукт. Не «замена Ubuntu».</p>
+    <p class="footer-note">Work In Progress».</p>
   </footer>
 
   <script>
